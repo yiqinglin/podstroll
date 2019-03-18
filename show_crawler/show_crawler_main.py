@@ -18,26 +18,30 @@ def main():
     for pod in podcasts:
         podcast_id = pod['podcast_id']
         url = settings.LOOK_UP_BASE + podcast_id
-        r = requests.get(url)
-        data = r.json()
-        feed_url = data['results'][0].get('feedUrl', None)
-        
-        # If podcast has no feedUrl, remove it from the db.
-        if not feed_url:
-            print ('removing the podcast as it does not have feed url:', podcast_id)
-            collection.delete_one({'_id': pod['_id']})
-            continue
+        else:
+            try:
+                r = requests.get(url)
+                data = r.json()
+                feed_url = data['results'][0].get('feedUrl', None)
+                
+                # If podcast has no feedUrl, remove it from the db.
+                if not feed_url:
+                    print ('removing the podcast as it does not have feed url:', podcast_id)
+                    collection.delete_one({'_id': pod['_id']})
+                    continue
 
-        # If the feed url returns 404, remove it from the db.
-        if requests.get(feed_url).status_code == 404:
-            print ('removing the podcast as it does not have a valid feed url:', podcast_id)
-            collection.delete_one({'_id': pod['_id']})
-            continue
+                # If the feed url returns 404, remove it from the db.
+                if requests.get(feed_url).status_code == 404:
+                    print ('removing the podcast as it does not have a valid feed url:', podcast_id)
+                    collection.delete_one({'_id': pod['_id']})
+                    continue
 
-        print ('updating feedUrl to podcast', pod['podcast_id'])
-        collection.find_one_and_update({'_id': pod['_id']}, {'$set': {'feed_url': feed_url}})
-        
-    print ("All done!")
+                print ('updating feedUrl to podcast', pod['podcast_id'])
+                collection.find_one_and_update({'_id': pod['_id']}, {'$set': {'feed_url': feed_url}})
+            except Exception as error:
+                print ('Caught this error:', repr(error))
+
+        print ("All done!")
 
 
 def updatePodcastDetails():
