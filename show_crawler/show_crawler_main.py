@@ -41,7 +41,7 @@ class ShowCrawler(object):
         logger = logging.getLogger('feed_url')
         logger.info('Updating podcast feed url...')
 
-        for pod in self.podcasts:
+        for pod in self.podcasts[6682:]:
             podcast_id = pod['podcast_id']
             url = settings.LOOK_UP_BASE + podcast_id
 

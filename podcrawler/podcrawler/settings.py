@@ -14,9 +14,8 @@ BOT_NAME = 'podcrawler'
 SPIDER_MODULES = ['podcrawler.spiders']
 NEWSPIDER_MODULE = 'podcrawler.spiders'
 
-
-MONGO_URI='0.0.0.0:27017'
-MONGO_DATABASE='podcrawler'
+MONGO_URI = '0.0.0.0:27017'
+MONGO_DATABASE = 'podcrawler'
 # FEED_FORMAT='csv'
 # FEED_URI = 'file.csv'
 
@@ -70,8 +69,7 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   # 'podcrawler.pipelines.JsonWriterPipeline': 300,
-   'podcrawler.pipelines.MongoPipeline': 300,
+    # 'podcrawler.pipelines.MongoPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

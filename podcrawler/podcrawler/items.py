@@ -16,3 +16,14 @@ class PodcrawlerItem(scrapy.Item):
     category = scrapy.Field()
     lang = scrapy.Field()
     podcast_id = scrapy.Field()
+
+
+class TopCategoryItem(scrapy.Item):
+    title = scrapy.Field()
+    itunes_id = scrapy.Field()
+
+
+class SubGenreItem(scrapy.Item):
+    title = scrapy.Field()
+    itunes_id = scrapy.Field()
+    parent_category = scrapy.Field()
