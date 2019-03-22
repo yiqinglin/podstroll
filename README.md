@@ -12,6 +12,12 @@ To start the crawler, run
 scrapy crawl podcasts
 ```
 
+To get the itunes podcast category list:
+
+```
+scrapy crawl categories
+```
+
 ### show_crawler
 For each podcast crawled in podcrawler, show_crawler looks up its feed url and gets additional show information from its feed.
 To start the crawler, run
