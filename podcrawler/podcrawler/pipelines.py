@@ -31,13 +31,13 @@ class MongoPipeline(object):
     def process_item(self, item, spider):
         collection = self.db[self.collection_name]
 
-        # Check if item already exists in the DB:
-        # exising_item = collection.find_one({ 'podcast_id': item['podcast_id'] })
-        # If not, save it to DB
         if item.get('author'):
             item["author"] = item["author"][3:]
 
-        collection.insert_one(dict(item))
+        collection.find_one_and_update({'podcast_id': item['podcast_id']},
+                                       {'$set': dict(item)},
+                                       upsert=True)
+
         return item
 
 

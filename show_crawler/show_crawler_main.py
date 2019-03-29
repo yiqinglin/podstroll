@@ -41,7 +41,7 @@ class ShowCrawler(object):
         logger = logging.getLogger('feed_url')
         logger.info('Updating podcast feed url...')
 
-        for pod in self.podcasts[6682:]:
+        for pod in self.podcasts:
             podcast_id = pod['podcast_id']
             url = settings.LOOK_UP_BASE + podcast_id
 
@@ -49,6 +49,7 @@ class ShowCrawler(object):
                 r = requests.get(url)
                 data = r.json()
                 feed_url = data['results'][0].get('feedUrl', None)
+                artwork = data['results'][0].get('artworkUrl600', None)
 
                 # If podcast has no feedUrl, remove it from the db.
                 if not feed_url:
@@ -66,15 +67,19 @@ class ShowCrawler(object):
                     self.collection.delete_one({'_id': pod['_id']})
                     continue
 
-                # If the feed url remains the same, continue to the next podcast.
-                if feed_url == pod.get('feed_url', None):
+                # If the feed url and artwork link remain the same, continue to the next podcast.
+                if feed_url == pod.get('feed_url',
+                                       None) and artwork == pod.get(
+                                           'feed_url', None):
                     continue
 
-                logger.info('Updating feedUrl to podcast %s',
+                logger.info('Updating feedUrl and artwork to podcast %s',
                             pod['podcast_id'])
                 self.collection.find_one_and_update(
-                    {'_id': pod['_id']}, {'$set': {
-                        'feed_url': feed_url
+                    {'_id': pod['_id']},
+                    {'$set': {
+                        'feed_url': feed_url,
+                        'artwork': artwork
                     }})
             except Exception as error:
                 logger.exception(error)
@@ -84,7 +89,15 @@ class ShowCrawler(object):
         logger.info('Updating podcast details using feed url...')
 
         for pod in self.podcasts:
-            feed_url = pod['feed_url']
+            feed_url = pod.get('feed_url', None)
+
+            if not feed_url:
+                logger.warning(
+                    'Removing the podcast as it does not have feed url: %s',
+                    pod['podcast_id'])
+                self.collection.delete_one({'_id': pod['_id']})
+                continue
+
             logger.debug(feed_url)
             d = feedparser.parse(feed_url)
             pod_channel = d['channel']
