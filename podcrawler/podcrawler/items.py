@@ -14,7 +14,6 @@ class PodcrawlerItem(scrapy.Item):
     title = scrapy.Field()
     author = scrapy.Field()
     category = scrapy.Field()
-    lang = scrapy.Field()
     podcast_id = scrapy.Field()
 
 

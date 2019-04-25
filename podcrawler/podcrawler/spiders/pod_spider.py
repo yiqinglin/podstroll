@@ -1,6 +1,7 @@
 import scrapy
 from scrapy.selector import Selector
 from scrapy.http import Request
+import logging
 from podcrawler.items import PodcrawlerItem
 
 
@@ -26,38 +27,38 @@ class PodSpider(scrapy.Spider):
         hxs = Selector(response)
 
         try:
-            podcast_id = hxs.css(
-                'div#dz-report-event-url::attr(podcast-id)').get()
+            canonical_link = hxs.xpath('//link[@rel="canonical"]/@href').get()
+            podcast_id = canonical_link.split('/')[-1][2:]
         except:
-            podcast_id = None
+            logging.exception('Failed to get podcast id', canonical_link)
 
         try:
             title = hxs.xpath(
-                '//div[contains(@id,"title")]/div/h1/text()').get()
+                '//span[contains(@class, "product-header__title") and @data-test-podcast-name]/text()'
+            ).get()
         except:
             title = None
 
         try:
-            author = response.xpath('//div[@id="title"]/div/h2/text()').get()
+            author = hxs.xpath(
+                '//span[contains(@class, "podcast-header__identity") and @data-test-artist-name]/a/text()'
+            ).get()
+            if not author:
+                author = hxs.xpath(
+                    '//span[contains(@class, "podcast-header__identity") and @data-test-artist-name]/text()'
+                ).get()
         except:
             author = None
 
         try:
-            category = response.xpath(
-                '//li[@class="genre"]/a/span/text()').get()
+            category = hxs.xpath('//li[@data-test-primary-genre]/text()').get()
         except:
             category = None
-
-        try:
-            lang = response.xpath('//li[@class="language"]/text()').get()
-        except:
-            lang = None
 
         item = PodcrawlerItem(
             title=title,
             author=author,
             category=category,
-            lang=lang,
             podcast_id=podcast_id)
         yield item
 
